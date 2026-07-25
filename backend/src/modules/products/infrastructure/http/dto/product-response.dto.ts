@@ -1,28 +1,33 @@
-import { Expose, Transform } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
+import { CategorySummaryDto } from './category-summary.dto';
 
 export class ProductResponseDto {
   @Expose()
-  id: string;
+  id!: string;
 
   @Expose()
-  name: string;
+  name!: string;
 
   @Expose()
-  description: string;
+  description!: string;
 
   @Expose()
   @Transform(({ value }) => Number(value))
-  price: number;
+  price!: number;
 
   @Expose()
-  stock: number;
+  stock!: number;
 
   @Expose()
-  imageUrl: string;
+  images!: string[];
 
   @Expose()
-  createdAt: Date;
+  @Type(() => CategorySummaryDto)
+  category!: CategorySummaryDto;
 
   @Expose()
-  updatedAt: Date;
+  createdAt!: Date;
+
+  @Expose()
+  updatedAt!: Date;
 }

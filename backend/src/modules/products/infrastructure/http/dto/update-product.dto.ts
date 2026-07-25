@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsInt,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -10,32 +9,35 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateProductDto {
+export class UpdateProductDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  name: string = '';
+  name?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  description: string = '';
+  description?: string;
 
+  @IsOptional()
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  price: number = 0;
+  price?: number;
 
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  stock: number = 0;
+  stock?: number;
 
   @IsOptional()
   @IsArray()
   @IsUrl({}, { each: true })
-  imageUrls?: string[];
+  images?: string[];
 
+  @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  categoryId: number = 0;
+  categoryId?: number;
 }

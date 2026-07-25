@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ProductOrmEntity } from './infrastructure/persistence/product.orm-entity';
-import { ProductTypeOrmRepository } from './infrastructure/persistence/product.typeorm.repository';
+import { ProductOrmEntity } from './infrastructure/persistence/typeorm/schema/product.orm-entity';
+import { ProductTypeOrmRepository } from './infrastructure/persistence/typeorm/repository/product.typeorm.repository';
 import { PRODUCT_REPOSITORY } from './domain/ports/product.repository.port';
+import { LocalStorageService } from './infrastructure/storage/local-storage.service';
+import { STORAGE_SERVICE } from 'src/shared/storage/storage.service.port';
 
-import { GetProductsUseCase } from './application/use-cases/get-products.use-case';
-import { GetProductByIdUseCase } from './application/use-cases/get-product-by-id.use-case';
-import { CreateProductUseCase } from './application/use-cases/create-product.use-case';
-
+import { ProductApplicationService } from './application/product.application.service';
 import { ProductController } from './infrastructure/http/product.controller';
 
 @Module({
@@ -19,9 +18,11 @@ import { ProductController } from './infrastructure/http/product.controller';
       provide: PRODUCT_REPOSITORY,
       useClass: ProductTypeOrmRepository,
     },
-    GetProductsUseCase,
-    GetProductByIdUseCase,
-    CreateProductUseCase,
+    {
+      provide: STORAGE_SERVICE,
+      useClass: LocalStorageService,
+    },
+    ProductApplicationService,
   ],
 })
 export class ProductsModule {}
