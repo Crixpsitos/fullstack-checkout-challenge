@@ -37,13 +37,13 @@ describe('CreateProductDto', () => {
     expect(errors.some((e) => e.property === 'stock')).toBe(true);
   });
 
-  it('falla si imageUrl no es una URL válida', async () => {
+  it('falla si imageUrls contiene una URL inválida', async () => {
     const dto = plainToInstance(CreateProductDto, {
       ...valid,
-      imageUrl: 'no-es-url',
+      imageUrls: ['no-es-url'],
     });
     const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'imageUrl')).toBe(true);
+    expect(errors.some((e) => e.property === 'imageUrls')).toBe(true);
   });
 
   it('falla si categoryId es 0 o negativo', async () => {
@@ -81,9 +81,9 @@ describe('UpdateProductDto', () => {
     expect(errors.some((e) => e.property === 'stock')).toBe(true);
   });
 
-  it('falla si imageUrl no es URL', async () => {
-    const dto = plainToInstance(UpdateProductDto, { imageUrl: 'mala-url' });
+  it('falla si images contiene una URL inválida', async () => {
+    const dto = plainToInstance(UpdateProductDto, { images: ['mala-url'] });
     const errors = await validate(dto);
-    expect(errors.some((e) => e.property === 'imageUrl')).toBe(true);
+    expect(errors.some((e) => e.property === 'images')).toBe(true);
   });
 });

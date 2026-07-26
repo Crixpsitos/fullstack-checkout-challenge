@@ -19,7 +19,6 @@ export class Product {
     public updatedAt: Date,
   ) {}
 
-  // Para crear un producto NUEVO — aplica validaciones
   static create(properties: {
     name: string;
     description: string;

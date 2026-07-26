@@ -42,6 +42,14 @@ describe('ProductController', () => {
             delete: jest.fn(),
           },
         },
+        {
+          provide: 'STORAGE_SERVICE',
+          useValue: {
+            saveMany: jest.fn(),
+            deleteMany: jest.fn(),
+            isLocalUrl: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -107,7 +115,7 @@ describe('ProductController', () => {
       description: 'Desc',
       price: 1000,
       stock: 5,
-      imageUrl: 'https://img.com/img.jpg',
+      imageUrls: ['https://img.com/img.jpg'],
       categoryId: 1,
     };
 

@@ -17,7 +17,7 @@ export class LocalStorageService implements IStorageService {
 
     return Promise.all(
       files.map(async (file) => {
-        const ext = file.originalname.split('.').pop() ?? 'bin';
+        const ext = file.originalname.split('.').pop() || 'bin';
         const filename = `${randomUUID()}.${ext}`;
         await writeFile(join(uploadPath, filename), file.buffer);
         return `/uploads/${folder}/${filename}`;
