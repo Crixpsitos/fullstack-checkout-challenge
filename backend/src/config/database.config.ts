@@ -3,7 +3,9 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const buildSsl = (): TypeOrmModuleOptions['ssl'] => {
+type SslConfig = false | { rejectUnauthorized: boolean; ca?: string };
+
+const buildSsl = (): SslConfig => {
   if (process.env.DB_SSL !== 'true') return false;
 
   const certPath = path.join(process.cwd(), 'globa-rds.pem');
