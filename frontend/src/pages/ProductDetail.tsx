@@ -145,6 +145,7 @@ export function ProductDetailPage() {
           <div className="pt-2">
             <button
               disabled={!inStock}
+              onClick={() => id && navigate(`/checkout/${id}`)}
               className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-semibold rounded-full transition-all
                 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
                 bg-gray-900 text-white hover:bg-gray-700 active:scale-[0.98]"

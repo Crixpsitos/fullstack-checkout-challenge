@@ -3,6 +3,7 @@ import { RootLayout } from '../layouts/RootLayout'
 import { HomePage } from '../pages/Home'
 import { ProductsPage } from '../pages/Products'
 import { ProductDetailPage } from '../pages/ProductDetail'
+import { CheckoutPage } from '../pages/Checkout'
 import { NotFoundPage } from '../pages/NotFound'
 
 export const router = createBrowserRouter([
@@ -13,6 +14,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'products/:id', element: <ProductDetailPage /> },
+      { path: 'checkout/:id', element: <CheckoutPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

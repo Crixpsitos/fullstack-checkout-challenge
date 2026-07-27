@@ -11,7 +11,9 @@ import {
 } from 'redux-persist';
 import { productsApi } from '../services/product/product.service';
 import { categoriesApi } from '../services/category/category.service';
+import { tokenizationApi } from '../services/gateway/tokenizationCard.service';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import checkoutReducer from './checkoutSlice';
 
 // Storage inline — evita problemas de resolución de módulos con Vite + ESM
 const webStorage = {
@@ -22,15 +24,18 @@ const webStorage = {
     Promise.resolve(void localStorage.removeItem(key)),
 };
 
-const rootReducer = combineReducers({ 
+const rootReducer = combineReducers({
+    checkout: checkoutReducer,
     [productsApi.reducerPath]: productsApi.reducer,
     [categoriesApi.reducerPath]: categoriesApi.reducer,
+    [tokenizationApi.reducerPath]: tokenizationApi.reducer,
 });
 
 const persistConfig = {
   key: 'checkout-app',
   version: 1,
   storage: webStorage,
+  blacklist: ['checkout'], // datos de checkout no se persisten por seguridad
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -42,7 +47,7 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-        }).concat(productsApi.middleware, categoriesApi.middleware),
+        }).concat(productsApi.middleware, categoriesApi.middleware, tokenizationApi.middleware),
 })
 
 export const persistor = persistStore(store);
