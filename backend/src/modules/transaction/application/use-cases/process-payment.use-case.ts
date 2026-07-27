@@ -18,7 +18,7 @@ import {
   DELIVERY_REPOSITORY,
 } from '../../../delivery/domain/ports/delivery.repository.port';
 import { Delivery } from '../../../delivery/domain/entities/delivery.entity';
-import { type Result, ok, err } from 'src/shared/result/result';
+import { type Result, ok, err } from '../../../../shared/result/result';
 import { type PaymentError } from '../../domain/errors/payment.errors';
 import { PaymentGatewayError } from '../../domain/errors/payment-gateway.errors';
 

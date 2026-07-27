@@ -3,7 +3,7 @@ import { ICustomerRepository } from '../domain/ports/customer.repository.port';
 import { IDeliveryRepository } from '../../delivery/domain/ports/delivery.repository.port';
 import { Customer } from '../domain/entities/customer.entity';
 import { Delivery } from '../../delivery/domain/entities/delivery.entity';
-import { Err, Ok } from 'src/shared/result/result';
+import { Err, Ok } from '../../../shared/result/result';
 import {
   CustomerNotFoundError,
   CustomerInvalidEmailError,

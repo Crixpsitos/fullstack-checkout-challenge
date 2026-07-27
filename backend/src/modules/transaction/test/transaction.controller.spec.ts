@@ -9,7 +9,7 @@ import { ProcessPaymentUseCase } from '../application/use-cases/process-payment.
 import { TransactionApplicationService } from '../application/transaction.application.service';
 import { Transaction } from '../domain/entities/transaction.entity';
 import { TransactionStatus } from '../domain/entities/transaction-status.vo';
-import { ok, err } from 'src/shared/result/result';
+import { ok, err } from '../../../shared/result/result';
 
 const makeTransaction = (status = TransactionStatus.APPROVED) =>
   Transaction.reconstitute({

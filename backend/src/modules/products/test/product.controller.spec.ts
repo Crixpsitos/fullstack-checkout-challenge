@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ProductController } from '../infrastructure/http/product.controller';
 import { ProductApplicationService } from '../application/product.application.service';
-import { ok, err } from 'src/shared/result/result';
+import { ok, err } from '../../../shared/result/result';
 import { ProductNotFoundError } from '../domain/errors/product.errors';
 import { Product } from '../domain/entities/product.entity';
 

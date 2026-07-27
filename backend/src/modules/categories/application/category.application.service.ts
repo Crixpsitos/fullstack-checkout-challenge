@@ -6,7 +6,7 @@ import {
 } from '../domain/ports/category.repository.port';
 import { CreateCategoryDto } from '../infrastructure/http/dto/create-category.dto';
 import { UpdateCategoryDto } from '../infrastructure/http/dto/update-category.dto';
-import { Result, ok, err, Err } from 'src/shared/result/result';
+import { Result, ok, err, Err } from '../../../shared/result/result';
 import {
   CategoryError,
   CategoryNotFoundError,

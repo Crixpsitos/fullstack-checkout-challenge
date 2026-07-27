@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { IProductRepository } from '../../../../domain/ports/product.repository.port';
 import { Product } from '../../../../domain/entities/product.entity';
 import { ProductOrmEntity } from '../schema/product.orm-entity';
-import { CategoryOrmEntity } from 'src/modules/categories/infrastructure/persistence/typeorm/schema/category.orm-entity';
+import { CategoryOrmEntity } from '../../../../../categories/infrastructure/persistence/typeorm/schema/category.orm-entity';
 import { type ProductFilterDto } from '../../../http/dto/product-filter.dto';
-import { PaginationResult } from 'src/shared/interfaces/pagination-result.interface';
+import { PaginationResult } from '../../../../../../shared/interfaces/pagination-result.interface';
 
 @Injectable()
 export class ProductTypeOrmRepository implements IProductRepository {

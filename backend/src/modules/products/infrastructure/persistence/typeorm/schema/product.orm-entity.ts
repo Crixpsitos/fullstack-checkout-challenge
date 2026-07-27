@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CategoryOrmEntity } from 'src/modules/categories/infrastructure/persistence/typeorm/schema/category.orm-entity';
+import { CategoryOrmEntity } from '../../../../../categories/infrastructure/persistence/typeorm/schema/category.orm-entity';
 
 @Entity('products')
 export class ProductOrmEntity {

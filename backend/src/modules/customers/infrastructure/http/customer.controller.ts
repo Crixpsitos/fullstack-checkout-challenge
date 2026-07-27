@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { plainToInstance } from 'class-transformer';
-import { Err } from 'src/shared/result/result';
+import { Err } from '../../../../shared/result/result';
 import { CustomerApplicationService } from '../../application/customer.application.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';

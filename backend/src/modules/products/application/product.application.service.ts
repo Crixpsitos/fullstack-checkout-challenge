@@ -7,8 +7,8 @@ import {
 import { CreateProductDto } from '../infrastructure/http/dto/create-product.dto';
 import { UpdateProductDto } from '../infrastructure/http/dto/update-product.dto';
 import { ProductFilterDto } from '../infrastructure/http/dto/product-filter.dto';
-import { PaginationResult } from 'src/shared/interfaces/pagination-result.interface';
-import { Result, ok, err, Err } from 'src/shared/result/result';
+import { PaginationResult } from '../../../shared/interfaces/pagination-result.interface';
+import { Result, ok, err, Err } from '../../../shared/result/result';
 import { ProductNotFoundError } from '../domain/errors/product.errors';
 
 @Injectable()

@@ -17,7 +17,7 @@ import { CategoryApplicationService } from '../../application/category.applicati
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
-import { Err } from 'src/shared/result/result';
+import { Err } from '../../../../shared/result/result';
 import { CategoryNotFoundError } from '../../domain/errors/category.errors';
 
 @Controller('categories')

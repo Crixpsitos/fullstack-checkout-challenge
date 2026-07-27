@@ -7,7 +7,7 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { CustomerOrmEntity } from 'src/modules/customers/infrastructure/persistence/typeorm/schema/customer.orm-entity';
+import { CustomerOrmEntity } from '../../../../../customers/infrastructure/persistence/typeorm/schema/customer.orm-entity';
 
 @Entity('deliveries')
 export class DeliveryOrmEntity {

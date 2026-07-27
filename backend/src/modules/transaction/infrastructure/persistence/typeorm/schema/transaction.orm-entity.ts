@@ -7,9 +7,9 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ProductOrmEntity } from 'src/modules/products/infrastructure/persistence/typeorm/schema/product.orm-entity';
-import { CustomerOrmEntity } from 'src/modules/customers/infrastructure/persistence/typeorm/schema/customer.orm-entity';
-import { DeliveryOrmEntity } from 'src/modules/delivery/infrastructure/persistence/typeorm/schema/delivery.orm-entity';
+import { ProductOrmEntity } from '../../../../../products/infrastructure/persistence/typeorm/schema/product.orm-entity';
+import { CustomerOrmEntity } from '../../../../../customers/infrastructure/persistence/typeorm/schema/customer.orm-entity';
+import { DeliveryOrmEntity } from '../../../../../delivery/infrastructure/persistence/typeorm/schema/delivery.orm-entity';
 import { TransactionStatus } from '../../../../domain/entities/transaction-status.vo';
 
 @Entity('transactions')

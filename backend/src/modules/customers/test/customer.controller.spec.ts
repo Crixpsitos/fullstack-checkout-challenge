@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { CustomerController } from '../infrastructure/http/customer.controller';
 import { CustomerApplicationService } from '../application/customer.application.service';
-import { ok, err } from 'src/shared/result/result';
+import { ok, err } from '../../../shared/result/result';
 import {
   CustomerNotFoundError,
   CustomerInvalidPhoneError,

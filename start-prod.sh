@@ -53,4 +53,3 @@ echo "   🎉 ¡DESPLIEGUE COMPLETADO Y CORRIENDO EN SEGUNDO PLANO! 🎉"
 echo "======================================================="
 echo ""
 pm2 status
-EOF

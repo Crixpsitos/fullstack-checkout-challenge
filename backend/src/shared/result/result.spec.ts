@@ -1,4 +1,4 @@
-import { Ok, Err, ok, err, isOk, isErr, Result } from 'src/shared/result/result';
+import { Ok, Err, ok, err, isOk, isErr, Result } from './result';
 
 describe('Result — Ok', () => {
   it('ok() crea una instancia de Ok', () => {

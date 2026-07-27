@@ -7,7 +7,7 @@ import { Transaction } from '../domain/entities/transaction.entity';
 import { TransactionStatus } from '../domain/entities/transaction-status.vo';
 import { Product } from '../../products/domain/entities/product.entity';
 import { Delivery } from '../../delivery/domain/entities/delivery.entity';
-import { Ok, Err } from 'src/shared/result/result';
+import { Ok, Err } from '../../../shared/result/result';
 import { PaymentGatewayError, PaymentGatewayTimeoutError } from '../domain/errors/payment-gateway.errors';
 
 const makeInput = (overrides: Partial<ProcessPaymentInput> = {}): ProcessPaymentInput => ({

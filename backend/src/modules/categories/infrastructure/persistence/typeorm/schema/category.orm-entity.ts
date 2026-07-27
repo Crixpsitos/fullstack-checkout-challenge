@@ -1,4 +1,4 @@
-import { ProductOrmEntity } from 'src/modules/products/infrastructure/persistence/typeorm/schema/product.orm-entity';
+import { ProductOrmEntity } from '../../../../../products/infrastructure/persistence/typeorm/schema/product.orm-entity';
 import {
   Column,
   CreateDateColumn,

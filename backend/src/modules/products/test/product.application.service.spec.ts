@@ -1,7 +1,7 @@
 import { ProductApplicationService } from '../application/product.application.service';
 import { IProductRepository } from '../domain/ports/product.repository.port';
 import { Product } from '../domain/entities/product.entity';
-import { Err, Ok } from 'src/shared/result/result';
+import { Err, Ok } from '../../../shared/result/result';
 import { ProductNotFoundError } from '../domain/errors/product.errors';
 
 const validUUID = '550e8400-e29b-41d4-a716-446655440000';

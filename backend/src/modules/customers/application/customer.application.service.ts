@@ -11,7 +11,7 @@ import {
 } from '../../delivery/domain/ports/delivery.repository.port';
 import { CreateCustomerDto } from '../infrastructure/http/dto/create-customer.dto';
 import { UpdateCustomerDto } from '../infrastructure/http/dto/update-customer.dto';
-import { Result, ok, err } from 'src/shared/result/result';
+import { Result, ok, err } from '../../../shared/result/result';
 import {
   CustomerNotFoundError,
   CustomerInvalidEmailError,

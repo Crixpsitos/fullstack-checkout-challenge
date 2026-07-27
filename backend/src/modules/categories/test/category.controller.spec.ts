@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConflictException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { CategoryController } from '../infrastructure/http/category.controller';
 import { CategoryApplicationService } from '../application/category.application.service';
-import { ok, err } from 'src/shared/result/result';
+import { ok, err } from '../../../shared/result/result';
 import {
   CategoryNotFoundError,
   CategorySlugConflictError,

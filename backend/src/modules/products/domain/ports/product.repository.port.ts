@@ -1,6 +1,6 @@
 import { type ProductFilterDto } from '../../infrastructure/http/dto/product-filter.dto';
 import { Product } from '../entities/product.entity';
-import { PaginationResult } from 'src/shared/interfaces/pagination-result.interface';
+import { PaginationResult } from '../../../../shared/interfaces/pagination-result.interface';
 
 export const PRODUCT_REPOSITORY = Symbol('PRODUCT_REPOSITORY');
 

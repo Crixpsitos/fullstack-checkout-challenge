@@ -1,4 +1,4 @@
-import { PaginationResult } from 'src/shared/interfaces/pagination-result.interface';
+import { PaginationResult } from '../interfaces/pagination-result.interface';
 import { Request } from 'express';
 
 export class PaginatedResponseDto<T> {

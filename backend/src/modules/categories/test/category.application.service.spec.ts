@@ -1,7 +1,7 @@
 import { CategoryApplicationService } from '../application/category.application.service';
 import { ICategoryRepository } from '../domain/ports/category.repository.port';
 import { Category } from '../domain/entities/category.entity';
-import { Err, Ok } from 'src/shared/result/result';
+import { Err, Ok } from '../../../shared/result/result';
 import {
   CategoryNotFoundError,
   CategorySlugConflictError,

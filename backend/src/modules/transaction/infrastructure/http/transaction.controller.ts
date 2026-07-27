@@ -16,7 +16,7 @@ import { ProcessPaymentUseCase } from '../../application/use-cases/process-payme
 import { TransactionApplicationService } from '../../application/transaction.application.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { TransactionResponseDto } from './dto/transaction-response.dto';
-import { Err } from 'src/shared/result/result';
+import { Err } from '../../../../shared/result/result';
 
 @Controller('transactions')
 export class TransactionController {

@@ -26,8 +26,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductFilterDto } from './dto/product-filter.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
-import { PaginatedResponseDto } from 'src/shared/dto/paginated-response.dto';
-import { Err } from 'src/shared/result/result';
+import { PaginatedResponseDto } from '../../../../shared/dto/paginated-response.dto';
+import { Err } from '../../../../shared/result/result';
 import {
   STORAGE_SERVICE,
   IStorageService,

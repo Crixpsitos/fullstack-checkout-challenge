@@ -5,7 +5,7 @@ import { ProductOrmEntity } from './infrastructure/persistence/typeorm/schema/pr
 import { ProductTypeOrmRepository } from './infrastructure/persistence/typeorm/repository/product.typeorm.repository';
 import { PRODUCT_REPOSITORY } from './domain/ports/product.repository.port';
 import { LocalStorageService } from './infrastructure/storage/local-storage.service';
-import { STORAGE_SERVICE } from 'src/shared/storage/storage.service.port';
+import { STORAGE_SERVICE } from '../../shared/storage/storage.service.port';
 
 import { ProductApplicationService } from './application/product.application.service';
 import { ProductController } from './infrastructure/http/product.controller';
