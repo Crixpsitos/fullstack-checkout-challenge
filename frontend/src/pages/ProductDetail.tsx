@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -7,10 +8,13 @@ import {
   ShoppingCart,
   Package,
   XCircle,
+  Minus,
+  Plus,
 } from 'lucide-react'
 import { useGetProductByIdQuery } from '../services/product/product.service'
 import { ProductImageGallery } from '../components/ProductImageGallery'
-import { ProductSkeleton } from '../components/ProductSkeleton'
+import { useDispatch } from 'react-redux'
+import { initCheckout } from '../store/checkoutSlice'
 
 const FEATURES = [
   'Diseño minimalista de alta calidad',
@@ -37,10 +41,18 @@ function DetailSkeleton() {
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const { data: product, isLoading, isError } = useGetProductByIdQuery(id ?? '')
+  const [quantity, setQuantity] = useState(1)
 
   const inStock = (product?.stock ?? 0) > 0
+
+  const handleBuy = () => {
+    if (!id) return
+    dispatch(initCheckout({ productId: id, quantity }))
+    navigate(`/checkout/${id}`)
+  }
 
   if (isLoading) {
     return (
@@ -126,6 +138,36 @@ export function ProductDetailPage() {
             </span>
           </div>
 
+          {/* Selector de cantidad */}
+          {inStock && (
+            <div className="flex items-center gap-4 border-t border-gray-100 pt-6">
+              <span className="text-sm font-medium text-gray-700">Cantidad</span>
+              <div className="flex items-center gap-1 bg-gray-50 rounded-xl p-1">
+                <button
+                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <Minus size={14} />
+                </button>
+                <span className="w-8 text-center text-sm font-semibold text-gray-900 tabular-nums">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(q => Math.min(product!.stock, q + 1))}
+                  disabled={quantity >= product!.stock}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-600 hover:bg-white hover:shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+              <span className="text-xs text-gray-400">
+                {quantity > 1
+                  ? `Subtotal: $${(product.price * quantity).toLocaleString('es-CO')}`
+                  : `${product.stock} disponibles`}
+              </span>
+            </div>
+          )}
+
           {/* Descripción */}
           <p className="text-gray-600 leading-relaxed text-sm border-t border-gray-100 pt-6">
             {product.description}
@@ -145,13 +187,15 @@ export function ProductDetailPage() {
           <div className="pt-2">
             <button
               disabled={!inStock}
-              onClick={() => id && navigate(`/checkout/${id}`)}
+              onClick={handleBuy}
               className="w-full flex items-center justify-center gap-2 py-3.5 text-sm font-semibold rounded-full transition-all
                 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
                 bg-gray-900 text-white hover:bg-gray-700 active:scale-[0.98]"
             >
               <ShoppingCart size={16} />
-              {inStock ? 'Agregar al carrito' : 'Sin stock'}
+              {inStock
+                ? quantity > 1 ? `Comprar ${quantity} unidades` : 'Comprar ahora'
+                : 'Sin stock'}
             </button>
           </div>
 

@@ -10,7 +10,7 @@ interface ProductCardProps {
   onBuyNow?: (product: Product) => void
 }
 
-export function ProductCard({ product, index, total, onBuyNow }: ProductCardProps) {
+export function ProductCard({ product, index, total }: ProductCardProps) {
   const inStock = product.stock > 0
   const image = product.images[0] ?? 'https://picsum.photos/seed/placeholder/800/600'
   const [imgLoaded, setImgLoaded] = useState(false)

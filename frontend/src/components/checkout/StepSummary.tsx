@@ -7,15 +7,17 @@ const SHIPPING_COST   = 8000
 
 interface Props {
   product: Product
+  quantity: number
   payment: PaymentData
   delivery: DeliveryData
   onConfirm: () => void
   onBack: () => void
 }
 
-export function StepSummary({ product, payment, delivery, onConfirm, onBack }: Props) {
-  const commission = Math.ceil(product.price * COMMISSION_RATE)
-  const total = product.price + commission + SHIPPING_COST
+export function StepSummary({ product, quantity, payment, delivery, onConfirm, onBack }: Props) {
+  const subtotal = product.price * quantity
+  const commission = Math.ceil(subtotal * COMMISSION_RATE)
+  const total = subtotal + commission + SHIPPING_COST
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,17 +29,20 @@ export function StepSummary({ product, payment, delivery, onConfirm, onBack }: P
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
           <p className="text-xs text-gray-400 mt-0.5">{product.category.name}</p>
+          {quantity > 1 && (
+            <p className="text-xs text-gray-500 mt-0.5">× {quantity} unidades</p>
+          )}
         </div>
         <p className="text-sm font-bold text-gray-900 shrink-0">
-          ${product.price.toLocaleString('es-CO')}
+          ${subtotal.toLocaleString('es-CO')}
         </p>
       </div>
 
       {/* Costos */}
       <div className="flex flex-col gap-2.5 text-sm">
         <div className="flex justify-between text-gray-500">
-          <span>Subtotal</span>
-          <span>${product.price.toLocaleString('es-CO')}</span>
+          <span>Subtotal{quantity > 1 ? ` (${quantity} × $${product.price.toLocaleString('es-CO')})` : ''}</span>
+          <span>${subtotal.toLocaleString('es-CO')}</span>
         </div>
         <div className="flex justify-between text-gray-500">
           <span>Comisión ({(COMMISSION_RATE * 100).toFixed(0)}%)</span>

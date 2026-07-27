@@ -1,4 +1,4 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
   persistStore,
   persistReducer,
@@ -8,13 +8,15 @@ import {
   PERSIST,
   PURGE,
   REGISTER,
-} from 'redux-persist';
-import { productsApi } from '../services/product/product.service';
-import { categoriesApi } from '../services/category/category.service';
-import { tokenizationApi } from '../services/gateway/tokenizationCard.service';
-import { customersApi } from '../services/customer/customer.service';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import checkoutReducer from './checkoutSlice';
+} from "redux-persist";
+import { productsApi } from "../services/product/product.service";
+import { categoriesApi } from "../services/category/category.service";
+import { tokenizationApi } from "../services/gateway/tokenizationCard.service";
+import { customersApi } from "../services/customer/customer.service";
+import { paymentTermsApi } from "../services/gateway/paymentTerms.service";
+import { transactionsApi } from "../services/transaction/transaction.service";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import checkoutReducer from "./checkoutSlice";
 
 // Storage inline — evita problemas de resolución de módulos con Vite + ESM
 const webStorage = {
@@ -26,38 +28,44 @@ const webStorage = {
 };
 
 const rootReducer = combineReducers({
-    checkout: checkoutReducer,
-    [productsApi.reducerPath]: productsApi.reducer,
-    [categoriesApi.reducerPath]: categoriesApi.reducer,
-    [tokenizationApi.reducerPath]: tokenizationApi.reducer,
-    [customersApi.reducerPath]: customersApi.reducer,
-    [tokenizationApi.reducerPath]: tokenizationApi.reducer,
+  checkout: checkoutReducer,
+  [productsApi.reducerPath]: productsApi.reducer,
+  [categoriesApi.reducerPath]: categoriesApi.reducer,
+  [tokenizationApi.reducerPath]: tokenizationApi.reducer,
+  [customersApi.reducerPath]: customersApi.reducer,
+  [paymentTermsApi.reducerPath]: paymentTermsApi.reducer,
+  [transactionsApi.reducerPath]: transactionsApi.reducer,
 });
 
 const persistConfig = {
-  key: 'checkout-app',
+  key: "checkout-app",
   version: 1,
   storage: webStorage,
-  blacklist: ['checkout'], // datos de checkout no se persisten por seguridad
+  blacklist: ["checkout"], // datos de checkout no se persisten por seguridad
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-            },
-        }).concat(productsApi.middleware, categoriesApi.middleware, tokenizationApi.middleware, customersApi.middleware),
-})
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(
+      productsApi.middleware,
+      categoriesApi.middleware,
+      tokenizationApi.middleware,
+      customersApi.middleware,
+      paymentTermsApi.middleware,
+      transactionsApi.middleware,
+    ),
+});
 
 export const persistor = persistStore(store);
 
 setupListeners(store.dispatch);
 
-
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
-

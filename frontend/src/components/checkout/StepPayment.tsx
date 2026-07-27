@@ -5,8 +5,9 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useAppDispatch } from '../../store/hooks'
-import { cardTokenized, setPaymentData, setDeliveryData, nextStep } from '../../store/checkoutSlice'
+import { cardTokenized, setPaymentData, setDeliveryData, setCustomerId, setAcceptanceToken, nextStep } from '../../store/checkoutSlice'
 import { useTokenizeCardMutation } from '../../services/gateway/tokenizationCard.service'
+import { useGetAcceptanceTokenQuery } from '../../services/gateway/paymentTerms.service'
 import { useCreateOrUpdateCustomerMutation, useLazyGetCustomerByEmailQuery } from '../../services/customer/customer.service'
 import type { PaymentData, DeliveryData } from '../../store/checkoutSlice'
 import { CreditCard, Calendar, Lock, User, MapPin, Mail, Phone, Home, Building2 } from 'lucide-react'
@@ -23,8 +24,8 @@ const schema = z.object({
   phone:    z.string().min(7, 'Teléfono inválido'),
   address:  z.string().min(5, 'Dirección muy corta'),
   city:     z.string().min(2, 'Ciudad requerida'),
-  country:  z.string().min(2, 'País requerido').default('CO'),
-  terms:    z.literal(true, { errorMap: () => ({ message: 'Debes aceptar los términos' }) }),
+  country:  z.string().min(2, 'País requerido'),
+  terms:    z.literal(true, { error: 'Debes aceptar los términos' }),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -48,15 +49,20 @@ export function StepPayment({ defaultValues, onNext }: Props) {
 
   const isLoading = isTokenizing || isSavingCustomer
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } =
-    useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { country: 'CO', ...defaultValues } })
+  const pubKey = import.meta.env.VITE_PAYMENT_PUBLIC_KEY as string
+  const { data: termsData } = useGetAcceptanceTokenQuery(pubKey, { skip: !pubKey, refetchOnMountOrArgChange: true })
+  const termsPermalink = termsData?.data.presigned_acceptance.permalink ?? '#'
+  const acceptanceToken = termsData?.data.presigned_acceptance.acceptance_token ?? ''
 
-  const values = watch()
+  const { register, handleSubmit, watch, setValue, formState: { errors } } =
+    useForm<FormValues>({ resolver: zodResolver(schema) as import('react-hook-form').Resolver<FormValues>, defaultValues: { country: '', ...defaultValues } })
+
+  const values = watch() as FormValues
   const onFocus = (e: React.FocusEvent<HTMLInputElement>) => setFocused(e.target.name as Focused)
 
-  const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+  const handleEmailChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const email = e.target.value.trim().toLowerCase()
-    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) return
+    if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) return
     try {
       const customer = await fetchCustomerByEmail(email).unwrap()
       if (!customer) return
@@ -70,11 +76,17 @@ export function StepPayment({ defaultValues, onNext }: Props) {
     } catch { /* sin customer, no hacer nada */ }
   }
 
-  const onSubmit = async (data: FormValues) => {
+  const handleExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let v = e.target.value.replace(/\D/g, '').slice(0, 4)
+    if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2)
+    setValue('expiry', v, { shouldValidate: v.length === 5 })
+  }
+
+  const onSubmit: import('react-hook-form').SubmitHandler<FormValues> = async (data) => {
     setSubmitError(null)
     try {
       // 1. Crear o actualizar customer (con dirección)
-      await createOrUpdate({
+      const customer = await createOrUpdate({
         name: data.fullName,
         email: data.email,
         phone: data.phone,
@@ -82,6 +94,8 @@ export function StepPayment({ defaultValues, onNext }: Props) {
         city: data.city,
         country: data.country,
       }).unwrap()
+      dispatch(setCustomerId(customer.id))
+      dispatch(setAcceptanceToken(acceptanceToken))
 
       // 2. Tokenizar tarjeta
       const [expMonth, expYear] = data.expiry.split('/')
@@ -127,7 +141,16 @@ export function StepPayment({ defaultValues, onNext }: Props) {
                 <label className={LABEL}>Vencimiento</label>
                 <div className="relative">
                   <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                  <input {...register('expiry')} name="expiry" placeholder="MM/AA" maxLength={5} onFocus={onFocus} className={`${INPUT} pl-9`} />
+                  <input
+                    {...register('expiry')}
+                    name="expiry"
+                    placeholder="MM/AA"
+                    maxLength={5}
+                    onFocus={onFocus}
+                    onChange={handleExpiryChange}
+                    value={values.expiry ?? ''}
+                    className={`${INPUT} pl-9`}
+                  />
                 </div>
                 {errors.expiry && <p className="text-[11px] text-red-500">{errors.expiry.message}</p>}
               </div>
@@ -161,7 +184,7 @@ export function StepPayment({ defaultValues, onNext }: Props) {
             <div className="relative">
               <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
               <input {...register('email')} type="email" placeholder="juan@email.com"
-                onBlur={handleEmailBlur} className={`${INPUT} pl-9`} />
+                onChange={handleEmailChange} className={`${INPUT} pl-9`} />
             </div>
             {errors.email && <p className="text-[11px] text-red-500">{errors.email.message}</p>}
           </div>
@@ -186,7 +209,11 @@ export function StepPayment({ defaultValues, onNext }: Props) {
           <label className="flex items-start gap-2.5 cursor-pointer mt-2">
             <input {...register('terms')} type="checkbox" className="mt-0.5 accent-gray-900 w-3.5 h-3.5" />
             <span className="text-xs text-gray-500 leading-relaxed">
-              Acepto los <a href="#" className="underline text-gray-700 font-medium">términos y condiciones</a>
+              Acepto los{' '}
+                <a href={termsPermalink} target="_blank" rel="noopener noreferrer"
+                  className="underline text-gray-700 font-medium">
+                  términos y condiciones
+                </a>
             </span>
           </label>
           {errors.terms && <p className="text-[11px] text-red-500 -mt-1">{errors.terms.message}</p>}

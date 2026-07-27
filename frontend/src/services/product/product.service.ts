@@ -12,7 +12,7 @@ export interface ProductFilters {
 
 export const productsApi = createApi({
   reducerPath: 'productsApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000' }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api' }),
   tagTypes: ['Product'],
   endpoints: (builder) => ({
     getProducts: builder.query<PaginatedResponse<Product>, ProductFilters | void>({

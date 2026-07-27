@@ -1,29 +1,99 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { ArrowLeft, CheckCircle } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { initCheckout, resetCheckout, prevStep } from '../store/checkoutSlice'
 import type { RootState } from '../store'
 import { useGetProductByIdQuery } from '../services/product/product.service'
+import { useCreateTransactionMutation } from '../services/transaction/transaction.service'
+import { productsApi } from '../services/product/product.service'
+import type { TransactionResult, TransactionStatus } from '../services/transaction/transaction.service'
 import { StepPayment } from '../components/checkout/StepPayment'
 import { StepSummary } from '../components/checkout/StepSummary'
+import { PaymentProcessing } from '../components/checkout/PaymentProcessing'
+import { PaymentSuccess } from '../components/checkout/PaymentSuccess'
+import { PaymentError } from '../components/checkout/PaymentError'
 
-/* Paso 1 = Pago y Entrega (combinado), Paso 2 = Resumen (backdrop) */
+const COMMISSION_RATE = 0.03
+const SHIPPING_COST = 8000
 const STEPS = ['Pago y Entrega', 'Resumen']
+
+type PageState = 'checkout' | 'processing' | 'success' | 'error'
 
 export function CheckoutPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { step, productId, paymentData, deliveryData } = useSelector((s: RootState) => s.checkout)
-  const [confirmed, setConfirmed] = useState(false)
+  const checkout = useSelector((s: RootState) => s.checkout)
+  const { step, productId, quantity, paymentData, deliveryData } = checkout
+
+  const [pageState, setPageState] = useState<PageState>('checkout')
+  const [txResult, setTxResult] = useState<TransactionResult | null>(null)
+  const [paidAmount, setPaidAmount] = useState<number>(0)
+  const [errorStatus, setErrorStatus] = useState<TransactionStatus | 'CALL_FAILED'>('ERROR')
+  const [errorMessage, setErrorMessage] = useState<string | undefined>()
+  const idempotencyKey = useRef<string>(crypto.randomUUID())
+
+  const [createTransaction] = useCreateTransactionMutation()
 
   useEffect(() => {
-    if (id) dispatch(initCheckout(id))
+    if (id) dispatch(initCheckout({ productId: id, quantity: checkout.quantity }))
     return () => { dispatch(resetCheckout()) }
   }, [id, dispatch])
 
   const { data: product, isLoading } = useGetProductByIdQuery(productId ?? '', { skip: !productId })
+
+  const handleConfirm = async () => {
+    if (!product || !checkout.customerId || !checkout.acceptanceToken || !checkout.cardToken || !deliveryData) return
+
+    const commission = Math.ceil(product.price * quantity * COMMISSION_RATE)
+    const amountInCents = (product.price * quantity + commission + SHIPPING_COST) * 100
+
+    setPageState('processing')
+
+    try {
+      const result = await createTransaction({
+        idempotencyKey: idempotencyKey.current,
+        reference: `REF-${idempotencyKey.current.slice(0, 8)}`,
+        amountInCents,
+        productId: product.id,
+        quantity,
+        customerId: checkout.customerId,
+        cardToken: checkout.cardToken.token,
+        acceptanceToken: checkout.acceptanceToken,
+        customerEmail: deliveryData.email,
+        customerName: deliveryData.name,
+        delivery: {
+          address: deliveryData.address,
+          city: deliveryData.city,
+          country: deliveryData.country,
+        },
+      }).unwrap()
+
+      setTxResult(result)
+
+      if (result.status === 'APPROVED') {
+        setPaidAmount(amountInCents)
+        dispatch(productsApi.util.invalidateTags(['Product']))
+        setPageState('success')
+        dispatch(resetCheckout())
+      } else {
+        setErrorStatus(result.status)
+        setErrorMessage(undefined)
+        setPageState('error')
+      }
+    } catch {
+      setErrorStatus('CALL_FAILED')
+      setErrorMessage(undefined)
+      setPageState('error')
+    }
+  }
+
+  const handleRetry = () => {
+    idempotencyKey.current = crypto.randomUUID()
+    setPageState('checkout')
+    setTxResult(null)
+  }
 
   if (isLoading) return (
     <div className="max-w-[960px] mx-auto px-4 py-20 animate-pulse space-y-4">
@@ -39,68 +109,80 @@ export function CheckoutPage() {
     </div>
   )
 
-  if (confirmed) return (
-    <div className="max-w-lg mx-auto px-4 py-24 text-center">
-      <CheckCircle size={52} className="mx-auto text-emerald-500 mb-4" />
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Pedido confirmado!</h2>
-      <p className="text-gray-400 text-sm mb-8">Recibirás un correo con los detalles de tu pedido.</p>
-      <Link to="/" className="inline-block bg-gray-900 text-white text-sm font-medium px-7 py-3 rounded-full hover:bg-gray-700 transition-colors">
-        Volver al inicio
-      </Link>
-    </div>
-  )
+  const commission = Math.ceil(product.price * quantity * COMMISSION_RATE)
+  const totalPesos = product.price * quantity + commission + SHIPPING_COST
+  void totalPesos
+
+  const showStepper = pageState === 'checkout'
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[960px] mx-auto px-4 py-10">
-        <button onClick={() => step === 1 ? navigate(-1) : dispatch(prevStep())}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6">
-          <ArrowLeft size={16} />
-          {step === 1 ? 'Volver al producto' : 'Volver'}
-        </button>
+
+        {showStepper && (
+          <button
+            onClick={() => step === 1 ? navigate(-1) : dispatch(prevStep())}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-6"
+          >
+            <ArrowLeft size={16} />
+            {step === 1 ? 'Volver al producto' : 'Volver'}
+          </button>
+        )}
 
         <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-          {/* Header + stepper — ancho completo sobre ambas columnas */}
-          <div className="mb-6">
-            <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
-            <p className="text-sm text-gray-400 mt-0.5">Paso {Math.min(step, 2)} de 2</p>
-          </div>
 
-          <div className="flex gap-2 mb-8">
-            {STEPS.map((label, i) => (
-              <div key={label} className="flex-1 text-center">
-                <div className={`h-1 rounded-full mb-1.5 transition-colors ${i + 1 <= step ? 'bg-gray-900' : 'bg-gray-100'}`} />
-                <span className={`text-[10px] font-medium ${i + 1 === Math.min(step, 2) ? 'text-gray-900' : 'text-gray-300'}`}>
-                  {label}
-                </span>
+          {showStepper && (
+            <div className="mb-6">
+              <h1 className="text-xl font-bold text-gray-900">Checkout</h1>
+              <p className="text-sm text-gray-400 mt-0.5">Paso {Math.min(step, 2)} de 2</p>
+              <div className="flex gap-2 mt-4">
+                {STEPS.map((label, i) => (
+                  <div key={label} className="flex-1 text-center">
+                    <div className={`h-1 rounded-full mb-1.5 transition-colors ${i + 1 <= step ? 'bg-gray-900' : 'bg-gray-100'}`} />
+                    <span className={`text-[10px] font-medium ${i + 1 === Math.min(step, 2) ? 'text-gray-900' : 'text-gray-300'}`}>
+                      {label}
+                    </span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-
-          {/* Formulario combinado — solo visible en paso 1 */}
-          {step === 1 && (
-            <StepPayment
-              onNext={() => {/* dispatch ya fue llamado dentro del componente */}}
-            />
+            </div>
           )}
 
-          {/* Resumen — reemplaza el formulario en paso 2 */}
-          {step === 2 && paymentData && deliveryData && (
+          <div className={pageState === 'checkout' && step === 1 ? '' : 'hidden'}>
+            <StepPayment onNext={() => {}} />
+          </div>
+
+          {pageState === 'checkout' && step === 2 && paymentData && deliveryData && (
             <StepSummary
               product={product}
+              quantity={quantity}
               payment={paymentData}
               delivery={deliveryData}
-              onConfirm={() => {
-                console.log('Pago confirmado', { productId, paymentData, deliveryData })
-                setConfirmed(true)
-                dispatch(resetCheckout())
-              }}
+              onConfirm={handleConfirm}
               onBack={() => dispatch(prevStep())}
             />
           )}
+
+          {pageState === 'processing' && <PaymentProcessing />}
+
+          {pageState === 'success' && txResult && (
+            <PaymentSuccess
+              result={txResult}
+              amountInCents={paidAmount}
+              productName={product.name}
+            />
+          )}
+
+          {pageState === 'error' && (
+            <PaymentError
+              status={errorStatus}
+              message={errorMessage}
+              onRetry={handleRetry}
+            />
+          )}
+
         </div>
       </div>
-
     </div>
   )
 }

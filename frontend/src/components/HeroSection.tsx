@@ -15,7 +15,7 @@ export function HeroSection() {
           Productos seleccionados para quienes aprecian la calidad, la simplicidad y el diseño duradero.
         </p>
         <Link
-          to="#productos"
+          to="/products"
           className="inline-flex items-center gap-2 bg-gray-900 text-white text-sm font-medium px-7 py-3 rounded-full hover:bg-gray-700 transition-colors"
         >
           Ver productos

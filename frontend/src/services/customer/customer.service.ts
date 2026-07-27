@@ -26,7 +26,7 @@ export interface CreateCustomerInput {
 
 export const customersApi = createApi({
   reducerPath: 'customersApi',
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:3000' }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api' }),
   endpoints: (builder) => ({
     getCustomerByEmail: builder.query<CustomerProfile | null, string>({
       query: (email) => `customers/email/${encodeURIComponent(email)}`,
