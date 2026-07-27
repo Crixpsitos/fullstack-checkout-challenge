@@ -1,5 +1,21 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const buildSsl = (): TypeOrmModuleOptions['ssl'] => {
+  if (process.env.DB_SSL !== 'true') return false;
+
+  const certPath = path.join(process.cwd(), 'globa-rds.pem');
+  if (fs.existsSync(certPath)) {
+    return {
+      rejectUnauthorized: true,
+      ca: fs.readFileSync(certPath).toString(),
+    };
+  }
+
+  return { rejectUnauthorized: true };
+};
 
 export default registerAs('database', (): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -13,7 +29,7 @@ export default registerAs('database', (): TypeOrmModuleOptions => ({
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
 
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+  ssl: buildSsl(),
 
   extra: {
     max: 20,
