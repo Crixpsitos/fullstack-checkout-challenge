@@ -24,5 +24,6 @@ import { ProductController } from './infrastructure/http/product.controller';
     },
     ProductApplicationService,
   ],
+  exports: [PRODUCT_REPOSITORY],
 })
 export class ProductsModule {}

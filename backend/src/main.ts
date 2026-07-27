@@ -6,11 +6,16 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173,http://localhost:4173')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:4173'],
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     credentials: true,
   });
+  app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

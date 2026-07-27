@@ -122,6 +122,42 @@ describe('ProductApplicationService', () => {
       await service.update(validUUID, { name: 'Solo nombre' });
       expect(original.stock).toBe(10);
     });
+
+    it('modifica description cuando viene en el dto', async () => {
+      const original = makeProduct();
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      await service.update(validUUID, { description: 'Nueva desc' });
+      expect(original.description).toBe('Nueva desc');
+    });
+
+    it('modifica stock cuando viene en el dto', async () => {
+      const original = makeProduct();
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      await service.update(validUUID, { stock: 99 });
+      expect(original.stock).toBe(99);
+    });
+
+    it('modifica images cuando viene en el dto', async () => {
+      const original = makeProduct();
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      await service.update(validUUID, { images: ['https://new.img/1.jpg'] });
+      expect(original.images).toEqual(['https://new.img/1.jpg']);
+    });
+
+    it('modifica categoryId cuando viene en el dto', async () => {
+      const original = makeProduct();
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      await service.update(validUUID, { categoryId: 5 });
+      expect(original.category.id).toBe(5);
+    });
   });
 
   describe('delete()', () => {

@@ -107,7 +107,58 @@ describe('CustomerApplicationService', () => {
       expect((result as Err<CustomerInvalidPhoneError>).error).toBeInstanceOf(CustomerInvalidPhoneError);
     });
   });
+  // ── getByEmail ────────────────────────────────────────────────────────────────────────
+  describe('getByEmail()', () => {
+    it('retorna null cuando el email no existe', async () => {
+      repo.findByEmail.mockResolvedValue(null);
+      const result = await service.getByEmail('no@existe.com');
+      expect(result).toBeNull();
+    });
 
+    it('retorna { customer, latestDelivery } cuando el email existe', async () => {
+      const customer = make();
+      repo.findByEmail.mockResolvedValue(customer);
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(null);
+
+      const result = await service.getByEmail('juan@email.com');
+
+      expect(result).not.toBeNull();
+      expect(result!.customer).toBe(customer);
+      expect(result!.latestDelivery).toBeNull();
+    });
+  });
+
+  // ── update ─────────────────────────────────────────────────────────────────────────
+  describe('update()', () => {
+    it('retorna Err(CustomerNotFoundError) cuando el customer no existe', async () => {
+      repo.findById.mockResolvedValue(null);
+      const result = await service.update('no-existe', { name: 'Nuevo' });
+      expect(result).toBeInstanceOf(Err);
+    });
+
+    it('actualiza nombre, email y teléfono cuando vienen en el dto', async () => {
+      const customer = make();
+      repo.findById.mockResolvedValue(customer);
+      repo.save.mockResolvedValue(customer);
+
+      await service.update('uuid-1', { name: 'Ana López', email: 'ana@mail.com', phone: '3109999999' });
+
+      expect(customer.name).toBe('Ana López');
+      expect(customer.email).toBe('ana@mail.com');
+      expect(customer.phone).toBe('3109999999');
+    });
+
+    it('no modifica campos no presentes en el dto', async () => {
+      const customer = make();
+      repo.findById.mockResolvedValue(customer);
+      repo.save.mockResolvedValue(customer);
+
+      await service.update('uuid-1', {});
+
+      expect(customer.name).toBe('Juan Pérez');
+      expect(repo.save).toHaveBeenCalledTimes(1);
+    });
+  });
   // ── createOrUpdate ────────────────────────────────────────────────────────
   describe('createOrUpdate() — ROP upsert por email', () => {
     const dto = { name: 'Juan Actualizado', email: 'juan@email.com', phone: '3001234567' };
@@ -167,4 +218,74 @@ describe('CustomerApplicationService', () => {
       expect((result as Err<CustomerInvalidPhoneError>).error.code).toBe('CUSTOMER_INVALID_PHONE');
     });
   });
-});;
+
+  describe('createOrUpdate() — syncDelivery branches', () => {
+    const dtoWithAddress = {
+      name: 'Juan',
+      email: 'juan@email.com',
+      phone: '3001234567',
+      address: 'Calle 123 #45',
+      city: 'Bogotá',
+      country: 'CO',
+    };
+
+    it('crea delivery cuando no hay uno previo', async () => {
+      repo.findByEmail.mockResolvedValue(null);
+      repo.findByPhone.mockResolvedValue(null);
+      repo.save.mockResolvedValue(make());
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(null);
+      deliveryRepo.save.mockResolvedValue({} as any);
+
+      await service.createOrUpdate(dtoWithAddress);
+      expect(deliveryRepo.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('crea nuevo delivery cuando la dirección cambió', async () => {
+      repo.findByEmail.mockResolvedValue(null);
+      repo.findByPhone.mockResolvedValue(null);
+      repo.save.mockResolvedValue(make());
+      const oldDelivery = { address: 'Calle Antigua', city: 'Medellín', country: 'CO' } as any;
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(oldDelivery);
+      deliveryRepo.save.mockResolvedValue({} as any);
+
+      await service.createOrUpdate(dtoWithAddress);
+      expect(deliveryRepo.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('NO crea delivery cuando la dirección no cambió', async () => {
+      repo.findByEmail.mockResolvedValue(null);
+      repo.findByPhone.mockResolvedValue(null);
+      repo.save.mockResolvedValue(make());
+      const sameDelivery = {
+        address: dtoWithAddress.address,
+        city: dtoWithAddress.city,
+        country: dtoWithAddress.country,
+      } as any;
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(sameDelivery);
+
+      await service.createOrUpdate(dtoWithAddress);
+      expect(deliveryRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('no llama syncDelivery cuando no hay address en el dto', async () => {
+      repo.findByEmail.mockResolvedValue(null);
+      repo.findByPhone.mockResolvedValue(null);
+      repo.save.mockResolvedValue(make());
+
+      await service.createOrUpdate({ name: 'Juan', email: 'juan@email.com', phone: '3001234567' });
+      expect(deliveryRepo.findLatestByCustomerId).not.toHaveBeenCalled();
+    });
+
+    it('phoneOwner con mismo id que existing no genera conflicto', async () => {
+      const existing = make();
+      repo.findByEmail.mockResolvedValue(existing);
+      repo.findByPhone.mockResolvedValue(existing);
+      repo.save.mockResolvedValue(existing);
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(null);
+      deliveryRepo.save.mockResolvedValue({} as any);
+
+      const result = await service.createOrUpdate({ ...dtoWithAddress, phone: '3009999999' });
+      expect(result).toBeInstanceOf(Ok);
+    });
+  });
+});

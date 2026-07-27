@@ -46,6 +46,20 @@ describe('CustomerController', () => {
     service = module.get(CustomerApplicationService);
   });
 
+  describe('findByEmail()', () => {
+    it('retorna CustomerResponseDto cuando existe el customer', async () => {
+      service.getByEmail.mockResolvedValue({ customer: make(), latestDelivery: null });
+      const result = await controller.findByEmail('juan@email.com');
+      expect(result).toMatchObject({ email: 'juan@email.com' });
+    });
+
+    it('retorna null cuando el email no corresponde a ningún customer', async () => {
+      service.getByEmail.mockResolvedValue(null);
+      const result = await controller.findByEmail('no@existe.com');
+      expect(result).toBeNull();
+    });
+  });
+
   describe('findAll()', () => {
     it('retorna array de CustomerResponseDto', async () => {
       service.getAll.mockResolvedValue([make()]);

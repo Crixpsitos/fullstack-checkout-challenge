@@ -63,6 +63,20 @@ describe('CategoryTypeOrmRepository', () => {
     });
   });
 
+  describe('findBySlug()', () => {
+    it('retorna Category cuando el slug existe', async () => {
+      ormRepo.findOne.mockResolvedValue(makeOrmRow());
+      const result = await repository.findBySlug('electronica');
+      expect(result).toBeInstanceOf(Category);
+    });
+
+    it('retorna null cuando el slug no existe', async () => {
+      ormRepo.findOne.mockResolvedValue(null);
+      const result = await repository.findBySlug('no-existe');
+      expect(result).toBeNull();
+    });
+  });
+
   describe('findById()', () => {
     it('retorna null si no encuentra la fila', async () => {
       ormRepo.findOne.mockResolvedValue(null);

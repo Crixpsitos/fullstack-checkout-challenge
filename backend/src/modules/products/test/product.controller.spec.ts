@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpStatus, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ProductController } from '../infrastructure/http/product.controller';
 import { ProductApplicationService } from '../application/product.application.service';
 import { ok, err } from 'src/shared/result/result';
@@ -123,6 +123,11 @@ describe('ProductController', () => {
       service.create.mockResolvedValue(makeProduct());
       const result = await controller.create(dto);
       expect(result).toMatchObject({ id: validUUID });
+    });
+
+    it('lanza BadRequestException cuando no hay imágenes ni archivos', async () => {
+      const dtoSinImagenes = { ...dto, imageUrls: undefined };
+      await expect(controller.create(dtoSinImagenes)).rejects.toThrow(BadRequestException);
     });
   });
 

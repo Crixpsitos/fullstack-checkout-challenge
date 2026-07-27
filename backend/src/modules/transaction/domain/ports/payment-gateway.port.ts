@@ -4,6 +4,7 @@ export interface CreateGatewayTransactionInput {
   cardToken: string;
   acceptanceToken: string;
   customerEmail: string;
+  customerName: string;
 }
 
 export interface GatewayTransactionResult {

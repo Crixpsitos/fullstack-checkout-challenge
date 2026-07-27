@@ -23,7 +23,7 @@ export class TransactionOrmEntity {
   @Column({ unique: true })
   reference!: string;
 
-  @Column({ name: 'gateway_id', nullable: true })
+  @Column({ name: 'gateway_id', type: 'varchar', nullable: true })
   gatewayId!: string | null;
 
   @Column({ type: 'varchar' })
@@ -44,10 +44,10 @@ export class TransactionOrmEntity {
   @JoinColumn({ name: 'delivery_id' })
   delivery!: DeliveryOrmEntity;
 
-  @Column({ name: 'card_last_four', nullable: true })
+  @Column({ name: 'card_last_four', type: 'varchar', nullable: true })
   cardLastFour!: string | null;
 
-  @Column({ name: 'card_brand', nullable: true })
+  @Column({ name: 'card_brand', type: 'varchar', nullable: true })
   cardBrand!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

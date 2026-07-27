@@ -125,6 +125,26 @@ describe('CategoryApplicationService', () => {
       expect(result).toBeInstanceOf(Ok);
       expect(repo.save).toHaveBeenCalledTimes(1);
     });
+
+    it('actualiza sin verificar conflicto si el slug no cambia', async () => {
+      const original = makeCategory({ slug: 'electronica' });
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      const result = await service.update(1, { name: 'Electrónica v2', slug: 'electronica' });
+      expect(result).toBeInstanceOf(Ok);
+      expect(repo.findBySlug).not.toHaveBeenCalled();
+    });
+
+    it('actualiza correctamente cuando no viene slug', async () => {
+      const original = makeCategory();
+      repo.findById.mockResolvedValue(original);
+      repo.save.mockResolvedValue(original);
+
+      const result = await service.update(1, { name: 'Solo nombre' });
+      expect(result).toBeInstanceOf(Ok);
+      expect(repo.findBySlug).not.toHaveBeenCalled();
+    });
   });
 
   describe('delete()', () => {
