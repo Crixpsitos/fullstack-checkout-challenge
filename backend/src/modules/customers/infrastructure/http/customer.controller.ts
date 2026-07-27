@@ -2,9 +2,7 @@ import {
   Body,
   ConflictException,
   Controller,
-  Delete,
   Get,
-  HttpCode,
   HttpStatus,
   NotFoundException,
   Param,
@@ -29,15 +27,40 @@ export class CustomerController {
   @Get()
   async findAll(): Promise<CustomerResponseDto[]> {
     const customers = await this.customerService.getAll();
-    return plainToInstance(CustomerResponseDto, customers, { excludeExtraneousValues: true });
+    return plainToInstance(CustomerResponseDto, customers, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Get('email/:email')
+  async findByEmail(@Param('email') email: string): Promise<CustomerResponseDto | null> {
+    const result = await this.customerService.getByEmail(email);
+    if (!result) return null;
+    const { customer, latestDelivery } = result;
+    return plainToInstance(
+      CustomerResponseDto,
+      { ...customer, latestDelivery },
+      { excludeExtraneousValues: true },
+    );
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<CustomerResponseDto> {
+  async findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CustomerResponseDto> {
     const result = await this.customerService.getById(id);
     if (result instanceof Err)
-      throw new NotFoundException({ statusCode: HttpStatus.NOT_FOUND, message: result.error.message, code: result.error.code });
-    return plainToInstance(CustomerResponseDto, result.value, { excludeExtraneousValues: true });
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: result.error.message,
+        code: result.error.code,
+      });
+    const { customer, latestDelivery } = result.value;
+    return plainToInstance(
+      CustomerResponseDto,
+      { ...customer, latestDelivery },
+      { excludeExtraneousValues: true },
+    );
   }
 
   @Post()
@@ -46,12 +69,22 @@ export class CustomerController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<CustomerResponseDto> {
     const result = await this.customerService.createOrUpdate(dto);
-    if (result instanceof Err)
-      throw new ConflictException({ statusCode: HttpStatus.CONFLICT, message: result.error.message, code: result.error.code });
+    if (result instanceof Err) {
+      if (result.error instanceof CustomerInvalidPhoneError)
+        throw new ConflictException({
+          statusCode: HttpStatus.CONFLICT,
+          message: result.error.message,
+          code: result.error.code,
+        });
+    }
 
-    const { customer, created } = result.value;
+    const { customer, created } = (
+      result as Exclude<typeof result, Err<CustomerInvalidPhoneError>>
+    ).value;
     res.status(created ? HttpStatus.CREATED : HttpStatus.OK);
-    return plainToInstance(CustomerResponseDto, customer, { excludeExtraneousValues: true });
+    return plainToInstance(CustomerResponseDto, customer, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Put(':id')
@@ -61,15 +94,13 @@ export class CustomerController {
   ): Promise<CustomerResponseDto> {
     const result = await this.customerService.update(id, dto);
     if (result instanceof Err)
-      throw new NotFoundException({ statusCode: HttpStatus.NOT_FOUND, message: result.error.message, code: result.error.code });
-    return plainToInstance(CustomerResponseDto, result.value, { excludeExtraneousValues: true });
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    const result = await this.customerService.delete(id);
-    if (result instanceof Err)
-      throw new NotFoundException({ statusCode: HttpStatus.NOT_FOUND, message: result.error.message, code: result.error.code });
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: result.error.message,
+        code: result.error.code,
+      });
+    return plainToInstance(CustomerResponseDto, result.value, {
+      excludeExtraneousValues: true,
+    });
   }
 }

@@ -1,4 +1,12 @@
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+
+export class LatestDeliveryDto {
+  @Expose() id!: string;
+  @Expose() address!: string;
+  @Expose() city!: string;
+  @Expose() country!: string;
+  @Expose() createdAt!: Date;
+}
 
 export class CustomerResponseDto {
   @Expose() id!: string;
@@ -7,4 +15,8 @@ export class CustomerResponseDto {
   @Expose() phone!: string;
   @Expose() createdAt!: Date;
   @Expose() updatedAt!: Date;
+
+  @Expose()
+  @Type(() => LatestDeliveryDto)
+  latestDelivery!: LatestDeliveryDto | null;
 }

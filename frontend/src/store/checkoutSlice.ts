@@ -15,6 +15,7 @@ export interface DeliveryData {
   phone: string
   address: string
   city: string
+  country: string
   terms: true
 }
 

@@ -12,6 +12,7 @@ import {
 import { productsApi } from '../services/product/product.service';
 import { categoriesApi } from '../services/category/category.service';
 import { tokenizationApi } from '../services/gateway/tokenizationCard.service';
+import { customersApi } from '../services/customer/customer.service';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import checkoutReducer from './checkoutSlice';
 
@@ -28,6 +29,8 @@ const rootReducer = combineReducers({
     checkout: checkoutReducer,
     [productsApi.reducerPath]: productsApi.reducer,
     [categoriesApi.reducerPath]: categoriesApi.reducer,
+    [tokenizationApi.reducerPath]: tokenizationApi.reducer,
+    [customersApi.reducerPath]: customersApi.reducer,
     [tokenizationApi.reducerPath]: tokenizationApi.reducer,
 });
 
@@ -47,7 +50,7 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-        }).concat(productsApi.middleware, categoriesApi.middleware, tokenizationApi.middleware),
+        }).concat(productsApi.middleware, categoriesApi.middleware, tokenizationApi.middleware, customersApi.middleware),
 })
 
 export const persistor = persistStore(store);

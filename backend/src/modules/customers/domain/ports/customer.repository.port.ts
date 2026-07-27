@@ -8,5 +8,4 @@ export interface ICustomerRepository {
   findByEmail(email: string): Promise<Customer | null>;
   findByPhone(phone: string): Promise<Customer | null>;
   findAll(): Promise<Customer[]>;
-  delete(id: string): Promise<void>;
 }

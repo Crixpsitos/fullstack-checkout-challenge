@@ -36,7 +36,7 @@ export default tseslint.config(
     // El patrón abstract class + @Inject de NestJS con tipos de Express
     // no es resolvible por recommendedTypeChecked en archivos de storage.
     // El build de TypeScript confirma que los tipos son correctos.
-    files: ['**/storage/**', '**/http/product.controller.ts'],
+    files: ['**/storage/**', '**/http/product.controller.ts', '**/customers/application/customer.application.service.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',

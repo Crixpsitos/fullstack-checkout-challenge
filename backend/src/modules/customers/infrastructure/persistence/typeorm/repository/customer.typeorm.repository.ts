@@ -45,10 +45,6 @@ export class CustomerTypeOrmRepository implements ICustomerRepository {
     return this.toDomain(saved);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.repo.delete(id);
-  }
-
   private toDomain(row: CustomerOrmEntity): Customer {
     return Customer.reconstitute({
       id: row.id,

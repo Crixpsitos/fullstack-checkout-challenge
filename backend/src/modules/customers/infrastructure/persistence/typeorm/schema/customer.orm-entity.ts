@@ -2,9 +2,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { DeliveryOrmEntity } from 'src/modules/delivery/infrastructure/persistence/typeorm/schema/delivery.orm-entity';
 
 @Entity('customers')
 export class CustomerOrmEntity {
@@ -25,4 +27,7 @@ export class CustomerOrmEntity {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
+
+  @OneToMany(() => DeliveryOrmEntity, (delivery) => delivery.customer)
+  deliveries!: DeliveryOrmEntity[];
 }
