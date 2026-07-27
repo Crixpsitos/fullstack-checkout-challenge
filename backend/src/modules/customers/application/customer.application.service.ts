@@ -41,7 +41,8 @@ export class CustomerApplicationService {
   > {
     const customer = await this.customerRepository.findById(id);
     if (!customer) return err(new CustomerNotFoundError(id));
-    const latestDelivery = await this.deliveryRepository.findLatestByCustomerId(id);
+    const latestDelivery =
+      await this.deliveryRepository.findLatestByCustomerId(id);
     return ok({ customer, latestDelivery });
   }
 
@@ -50,7 +51,9 @@ export class CustomerApplicationService {
   ): Promise<{ customer: Customer; latestDelivery: Delivery | null } | null> {
     const customer = await this.customerRepository.findByEmail(email);
     if (!customer) return null;
-    const latestDelivery = await this.deliveryRepository.findLatestByCustomerId(customer.id);
+    const latestDelivery = await this.deliveryRepository.findLatestByCustomerId(
+      customer.id,
+    );
     return { customer, latestDelivery };
   }
 

@@ -1,6 +1,8 @@
 import { CustomerApplicationService } from '../application/customer.application.service';
 import { ICustomerRepository } from '../domain/ports/customer.repository.port';
+import { IDeliveryRepository } from '../../delivery/domain/ports/delivery.repository.port';
 import { Customer } from '../domain/entities/customer.entity';
+import { Delivery } from '../../delivery/domain/entities/delivery.entity';
 import { Err, Ok } from 'src/shared/result/result';
 import {
   CustomerNotFoundError,
@@ -25,16 +27,25 @@ const mockRepo = (): jest.Mocked<ICustomerRepository> => ({
   findByEmail: jest.fn(),
   findByPhone: jest.fn(),
   save: jest.fn(),
-  delete: jest.fn(),
+});
+
+const mockDeliveryRepo = (): jest.Mocked<IDeliveryRepository> => ({
+  save: jest.fn(),
+  findById: jest.fn(),
+  findByCustomerId: jest.fn(),
+  findLatestByCustomerId: jest.fn(),
+  findAll: jest.fn(),
 });
 
 describe('CustomerApplicationService', () => {
   let service: CustomerApplicationService;
   let repo: jest.Mocked<ICustomerRepository>;
+  let deliveryRepo: jest.Mocked<IDeliveryRepository>;
 
   beforeEach(() => {
     repo = mockRepo();
-    service = new CustomerApplicationService(repo);
+    deliveryRepo = mockDeliveryRepo();
+    service = new CustomerApplicationService(repo, deliveryRepo);
   });
 
   // ── getAll ────────────────────────────────────────────────────────────────
@@ -48,10 +59,15 @@ describe('CustomerApplicationService', () => {
 
   // ── getById ───────────────────────────────────────────────────────────────
   describe('getById()', () => {
-    it('retorna Ok(customer) cuando existe', async () => {
-      repo.findById.mockResolvedValue(make());
+    it('retorna Ok({ customer, latestDelivery }) cuando existe', async () => {
+      const customer = make();
+      repo.findById.mockResolvedValue(customer);
+      deliveryRepo.findLatestByCustomerId.mockResolvedValue(null);
       const result = await service.getById('uuid-1');
       expect(result).toBeInstanceOf(Ok);
+      const value = (result as Ok<{ customer: Customer; latestDelivery: Delivery | null }>).value;
+      expect(value.customer).toBe(customer);
+      expect(value.latestDelivery).toBeNull();
     });
 
     it('retorna Err(CustomerNotFoundError) cuando no existe', async () => {
@@ -151,22 +167,4 @@ describe('CustomerApplicationService', () => {
       expect((result as Err<CustomerInvalidPhoneError>).error.code).toBe('CUSTOMER_INVALID_PHONE');
     });
   });
-
-  // ── delete ────────────────────────────────────────────────────────────────
-  describe('delete()', () => {
-    it('retorna Ok(undefined) cuando existe', async () => {
-      repo.findById.mockResolvedValue(make());
-      repo.delete.mockResolvedValue(undefined);
-      const result = await service.delete('uuid-1');
-      expect(result).toBeInstanceOf(Ok);
-      expect(repo.delete).toHaveBeenCalledWith('uuid-1');
-    });
-
-    it('retorna Err(CustomerNotFoundError) si no existe', async () => {
-      repo.findById.mockResolvedValue(null);
-      const result = await service.delete('no-existe');
-      expect(result).toBeInstanceOf(Err);
-      expect(repo.delete).not.toHaveBeenCalled();
-    });
-  });
-});
+});;

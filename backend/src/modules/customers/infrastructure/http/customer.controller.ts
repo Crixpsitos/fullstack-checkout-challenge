@@ -33,7 +33,9 @@ export class CustomerController {
   }
 
   @Get('email/:email')
-  async findByEmail(@Param('email') email: string): Promise<CustomerResponseDto | null> {
+  async findByEmail(
+    @Param('email') email: string,
+  ): Promise<CustomerResponseDto | null> {
     const result = await this.customerService.getByEmail(email);
     if (!result) return null;
     const { customer, latestDelivery } = result;

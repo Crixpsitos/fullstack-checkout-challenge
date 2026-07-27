@@ -108,12 +108,4 @@ describe('CustomerTypeOrmRepository', () => {
       expect(ormRepo.save).toHaveBeenCalledTimes(1);
     });
   });
-
-  describe('delete()', () => {
-    it('llama a delete con el id correcto', async () => {
-      ormRepo.delete.mockResolvedValue({ affected: 1 });
-      await repository.delete('uuid-1');
-      expect(ormRepo.delete).toHaveBeenCalledWith('uuid-1');
-    });
-  });
 });

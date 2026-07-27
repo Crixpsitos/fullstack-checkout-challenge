@@ -34,9 +34,9 @@ describe('CustomerController', () => {
           useValue: {
             getAll: jest.fn(),
             getById: jest.fn(),
+            getByEmail: jest.fn(),
             createOrUpdate: jest.fn(),
             update: jest.fn(),
-            delete: jest.fn(),
           },
         },
       ],
@@ -57,7 +57,7 @@ describe('CustomerController', () => {
 
   describe('findOne()', () => {
     it('retorna CustomerResponseDto cuando existe', async () => {
-      service.getById.mockResolvedValue(ok(make()));
+      service.getById.mockResolvedValue(ok({ customer: make(), latestDelivery: null }));
       const result = await controller.findOne('uuid-1');
       expect(result).toMatchObject({ id: 'uuid-1' });
     });
@@ -95,18 +95,6 @@ describe('CustomerController', () => {
       await expect(controller.createOrUpdate(dto, res)).rejects.toMatchObject({
         response: { code: 'CUSTOMER_INVALID_PHONE', statusCode: HttpStatus.CONFLICT },
       });
-    });
-  });
-
-  describe('delete()', () => {
-    it('completa sin error cuando existe', async () => {
-      service.delete.mockResolvedValue(ok(undefined));
-      await expect(controller.delete('uuid-1')).resolves.toBeUndefined();
-    });
-
-    it('lanza NotFoundException si no existe', async () => {
-      service.delete.mockResolvedValue(err(new CustomerNotFoundError('uuid-x')));
-      await expect(controller.delete('uuid-x')).rejects.toThrow(NotFoundException);
     });
   });
 });
