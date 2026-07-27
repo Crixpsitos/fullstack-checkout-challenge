@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { ArrowLeft } from 'lucide-react'
+import { v4 as uuidv4 } from 'uuid'
 import { initCheckout, resetCheckout, prevStep } from '../store/checkoutSlice'
 import type { RootState } from '../store'
 import { useGetProductByIdQuery } from '../services/product/product.service'
@@ -32,7 +33,7 @@ export function CheckoutPage() {
   const [paidAmount, setPaidAmount] = useState<number>(0)
   const [errorStatus, setErrorStatus] = useState<TransactionStatus | 'CALL_FAILED'>('ERROR')
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
-  const idempotencyKey = useRef<string>(crypto.randomUUID())
+  const idempotencyKey = useRef<string>(uuidv4())
 
   const [createTransaction] = useCreateTransactionMutation()
 
@@ -90,7 +91,7 @@ export function CheckoutPage() {
   }
 
   const handleRetry = () => {
-    idempotencyKey.current = crypto.randomUUID()
+    idempotencyKey.current = uuidv4()
     setPageState('checkout')
     setTxResult(null)
   }
