@@ -8,8 +8,8 @@ jest.mock('fs/promises', () => ({
   unlink: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('crypto', () => ({
-  randomUUID: jest.fn().mockReturnValue('test-uuid-1234'),
+jest.mock('uuid', () => ({
+  v4: jest.fn().mockReturnValue('test-uuid-1234'),
 }));
 
 const mkdirMock = mkdir as jest.MockedFunction<typeof mkdir>;

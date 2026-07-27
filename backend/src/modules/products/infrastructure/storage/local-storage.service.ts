@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { mkdir, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import {
   IStorageService,
   StorageFileInput,
@@ -18,7 +18,7 @@ export class LocalStorageService implements IStorageService {
     return Promise.all(
       files.map(async (file) => {
         const ext = file.originalname.split('.').pop() || 'bin';
-        const filename = `${randomUUID()}.${ext}`;
+        const filename = `${uuidv4()}.${ext}`;
         await writeFile(join(uploadPath, filename), file.buffer);
         return `/uploads/${folder}/${filename}`;
       }),

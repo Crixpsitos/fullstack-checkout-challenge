@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ProductCategory {
   id: number;
@@ -32,7 +32,7 @@ export class Product {
     if (properties.stock < 0) throw new Error('El stock no puede ser negativo');
     const now = new Date();
     return new Product(
-      randomUUID(),
+      uuidv4(),
       properties.name.trim(),
       properties.description.trim(),
       properties.price,

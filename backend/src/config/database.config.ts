@@ -9,12 +9,12 @@ const buildSsl = (): TypeOrmModuleOptions['ssl'] => {
   const certPath = path.join(process.cwd(), 'globa-rds.pem');
   if (fs.existsSync(certPath)) {
     return {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
       ca: fs.readFileSync(certPath).toString(),
     };
   }
 
-  return { rejectUnauthorized: true };
+  return { rejectUnauthorized: false };
 };
 
 export default registerAs('database', (): TypeOrmModuleOptions => ({

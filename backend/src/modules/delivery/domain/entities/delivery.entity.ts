@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Delivery {
   constructor(
@@ -21,7 +21,7 @@ export class Delivery {
   }): Delivery {
     const now = new Date();
     return new Delivery(
-      randomUUID(),
+      uuidv4(),
       properties.customerId,
       properties.address,
       properties.city,

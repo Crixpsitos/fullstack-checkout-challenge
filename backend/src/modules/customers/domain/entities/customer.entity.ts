@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Customer {
   private constructor(
@@ -19,7 +19,7 @@ export class Customer {
   }): Customer {
     const now = new Date();
     return new Customer(
-      randomUUID(),
+      uuidv4(),
       properties.name.trim(),
       properties.email.trim().toLowerCase(),
       properties.phone.trim(),
